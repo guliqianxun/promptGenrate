@@ -42,44 +42,84 @@ role = """
 软件架构工程师
 """
 question = """
-请协助整理软件架构独立构件风格的特点、优缺点及应用场景。
+请协助我对比两种数据流图设计方案的优缺点
+@startuml
+!theme sketchy-outline
+rectangle "传感器" as Sensor {
+	usecase "传感器数据" as ParseSensorData
+}
+
+rectangle "存储模块" {
+    usecase "存储传感器信息" as StoreSensorData
+    usecase "存入光谱信息" as StoreSpectrumData
+    usecase "存入水质信息" as StoreWaterQualityData
+}
+
+rectangle "解析模块" as AnalysisModel{
+    usecase "解析传感器数据" as ParsedSensorData
+    usecase "转发解析后光谱" as ParsedSpectrumData
+    usecase "解析/反演后水质" as AnalysisedWaterQulityData
+} 
+
+database "数据库" as DB
+
+ParseSensorData -down-> StoreSensorData : "传感器数据存储请求"
+StoreSensorData -down-> DB : "存储传感器数据"
+
+ParseSensorData -down-> ParsedSensorData : "传感器数据解析请求"
+ParsedSensorData --> ParsedSpectrumData
+ParsedSensorData --> AnalysisedWaterQulityData : "原始水质数据"
+
+ParsedSpectrumData --> AnalysisedWaterQulityData : "水质数据"
+
+ParsedSpectrumData -down-> StoreSpectrumData : "光谱数据存储请求"
+StoreSpectrumData -down-> DB : "存储光谱数据"
+
+AnalysisedWaterQulityData -down-> StoreWaterQualityData : "水质数据存储请求"
+StoreWaterQualityData -down-> DB : "存储水质数据"
+
+@enduml
+
+第二种
+@startuml
+!theme sketchy-outline
+rectangle "传感器" as Sensor {
+    usecase "传感器数据" as ParseSensorData
+}
+
+rectangle "数据处理平台" as AnalysisPlatform{
+    usecase "传感器数据缓存" as CacheSensorData
+    usecase "解析后光谱" as ParsedSpectrumData
+    usecase "解析/反演后水质" as AnalysisedWaterQulityData
+} 
+
+database "数据库" as DB
+
+ParseSensorData -down-> CacheSensorData : "数据转发"
+CacheSensorData -down-> ParsedSpectrumData : "解析光谱数据"
+CacheSensorData -down-> DB : "存储传感器数据"
+
+
+CacheSensorData -down-> AnalysisedWaterQulityData : "解析光谱数据"
+ParsedSpectrumData --> AnalysisedWaterQulityData : "反衍光谱数据"
+
+ParsedSpectrumData -down-> DB : "存储光谱数据"
+AnalysisedWaterQulityData -down-> DB : "存储水质数据"
+
+@enduml
 """
 reference = """
-独立构件风格
-触发事件
-主函数
-调用返回风格
-主函数
-事件管理机制
-通知执行
-返回执行结果
-子函数
-调用子函数
-子函数
-构件之间不直接交互
-松耦合
-构件之间直接交互
-紧耦合
-返回执行结果
-
-优点
-松耦合。
-2、良好的重用性/可修改性/可扩展性。
-缺点
-1、构件放弃了对系统计算的控制。一个构件触发一个事件时，不能确定其他构件是否会响应它。而且即使它知道事件注册了哪些构件的过程，它也不能保证这些过程被调用的顺序。
-数据交换的问题。
-3、既然过程的语义必须依赖于被触发事件的上下文约束，关于正确性的推理就存在问题。
-特点
-系统由若干子系统构成且成为一个整体;系统有统一的目标;子系统有主从之分;每一子系统有自己的事件收集和处理机制
+软件架构设计原则
 """
 direction = """
-给出技术要点的关键说明
+方案对比，评分估计，尽量刻薄
 """
 constrain = """
 "1. 答案必须符合工程实践需求，提供清晰、逻辑性强且有充分支持的答案。"
 "2. 避免使用人称代词，确保答案客观且专注。"
-"3. 回答格式应模仿对于需求文档/设计文档的格式，使用plantuml(基本语法，表格，python代码示例结合说明问题。
+
 """
+# "3. 回答格式应模仿对于需求文档/设计文档的格式，使用plantuml(基本语法，表格，python代码示例结合说明问题。
 language = 'ch'
 
 prompt = generate_prompt(role, question, reference, direction, constrain, language)
@@ -93,13 +133,16 @@ print(prompt)
 # Algorithm Engineer
 # """
 # question = """
-# How can we improve the efficiency of the algorithm?
+# as a introduction of purpose methods, please help me rephrase the following paragraph
+# Initially, we present the methodology for extracting V-I trajectory signatures from an individual
+# appliance’s combined terminal voltage and total current data. Following that, we provide a comprehensive
+# explanation of the proposed model architecture
 # """
 # reference = """
 # All known knowledge
 # """
 # direction = """
-# Find the best solution
+# Non-intrusive load monitoring, Semi-supervised learning, flexible thresholds, V-I trajectory, appliance identification
 # """
 # constrain = """
 # "1. The response must adhere to academic standards, providing clear, logical, and well-supported answers."
