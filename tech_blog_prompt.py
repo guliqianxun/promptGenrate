@@ -42,7 +42,6 @@ role = """
 算法工程师
 """
 question = """
-请结合我的总结和疑问，帮助整理文章Tent: Fully Test-time Adaptation by Entropy Minimization 
 """
 reference = """
 
