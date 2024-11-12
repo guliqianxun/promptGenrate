@@ -1,3 +1,9 @@
+# -*- coding: UTF-8 -*-
+'''
+@Author  : Zhiheng Liu
+@Email   : visitorindark@gmail.com
+@Date    : 2024/03/06 14:02 AM
+'''
 import re
 
 def process_file(file_path):
@@ -14,7 +20,7 @@ def process_file(file_path):
     # 将 \] 替换为 \n$$
     content = re.sub(r'(\n\s*)\\\]', r'$$', content)
 
-    content = re.sub(r'\$(\s+)', r'$', content)
+    content = re.sub(r'\s*\$\s*', r'$', content)
 
     with open('process.txt', 'w', encoding='utf-8') as file:
         file.write(content)
